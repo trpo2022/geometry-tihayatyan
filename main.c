@@ -2,87 +2,93 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#define MAXIMUM 269
+#define N 80
+#define R 5
 
-typedef struct Coord{
-	char coor[30];
-} co;
+struct circle {
+  float x, y, r;
+} c;
 
-int main(void){
-	char ch1[] = "Circle\0";
-	char ch2[] = "(, , )\0";
-	char str[MAXIMUM];
-	char name[10];
-	co coordin[10];
+struct triangle {i
+  float x1, x2, x3, y1, y2, y3;
+} tr;
 
-	int n = 0;
-	int k = 0;
+double chisla(char *str, int *i);  
 
-	puts("Enter string:\n");
-	fgets(str, MAXIMUM - 1, stdin);
+int main() {
+  int i;
+  char m1[N] = "circle";
+  char m2[N] = "triangle";
+  char m3[N];
 
-	for(int i = 0; ch1[i] != '\0'; i++){
-		if(islower(str[0])){
-			puts("1st letter must be in upper case.\n");
-			break;
-		}
-		if(str[i] == ch1[i]){
-			n++;
-			name[i] = str[i];
-		}
-		k = i + 2;
-	}
+  FILE *file;
+  file = fopen("input.txt", "r");
 
-	int c = 0;
-	if(n != strlen(ch1)){
-		puts("Check name or bracket.");
-		c++;
-	}
+  
+  printf("Открытие файла:");
+  if (file == NULL)
+    printf("ошибка\n");
+  else
+    printf("выполнено\n");
 
-	int m = 0;
-	int j = 0;
-	int com = 0;
+  while (fgets(m3, N, file) != NULL) {
+    if (strncmp(m1, m3, R) == 0) {
+      i = 7;
+      c.x = chisla(m3, &i);
+      c.y = chisla(m3, &i);
+      c.r = chisla(m3, &i);
+      printf("Circle: (%0.0f %0.0f) R = %0.2f\n", c.x, c.y, c.r);
+    } else if (strncmp(m2, m3, R) == 0) {
+      i = 9;
+      tr.x1 = chisla(m3, &i);
+      tr.y1 = chisla(m3, &i);
+      tr.x2 = chisla(m3, &i);
+      tr.y2 = chisla(m3, &i);
+      tr.x3 = chisla(m3, &i);
+      tr.y3 = chisla(m3, &i);
+      printf("Triangle: (%0.0f %0.0f) (%0.0f %0.0f) (%0.0f %0.0f)\n", tr.x1,
+             tr.y1, tr.x2, tr.y2, tr.x3, tr.y3);
+    } else {
+      printf("Error\n");
+    }
+  }
+  return 0;
+}
 
-	for(int i = k; str[i] != ')'; i++){
 
-		if(c != 0) break;
 
-		if(str[i] == ' '){
-			n++;
-			continue;
-		}
+double chisla(char *str, int *i)  
+{
+  double result = 0;
+  double div = 10;
+  int sign = 1;
 
-		if(str[i] == '.' || isdigit(str[i])){
-			coordin[m].coor[j] = str[i];
-			j++;
-		}
-		else if(str[i] == ','){
-			m++;
-			n++;
-			com++;
-			j = 0;
-		}
-		else{
-			puts("Check input data or commas.\n");
-			break;
-		}
-	}
-	int l = 0;
-	while(l < 3){
-		if(com < 2){
-			puts("Too few args, try again.\n");
-			break;
-		}
+  while (result == 0) {
+    if (str[*i] == '-')  
+    {
+      sign = -1;
+      ++*i;
+    }
+    
+    while (str[*i] >= '0' && str[*i] <= '9') {
+      result = result * 10.0 + (str[*i] - '0');
 
-		printf("Объект: %s\n", name);
-		l++;
+      ++*i;
+    }
 
-		printf("Координаты: (%s, %s)\n", coordin[0].coor, coordin[1].coor);
-		l++;
+    if (str[*i] == '.')  //проверка на десятичную дробь
+    {
+      ++*i;
 
-		printf("Радиус: %s\n", coordin[2].coor);
-		l++;
-	}
-return 0;
+      while (str[*i] >= '0' && str[*i] <= '9') {
+        result = result + (str[*i] - '0') / div;
+        div *= 10;
+
+        ++*i;
+      }
+    }
+    ++*i;
+  }
+
+  return sign * result;
 }
